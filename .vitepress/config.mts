@@ -8,11 +8,12 @@ function genSideBar(dir: string, sidebar: any[]) {
     .filter(
       (item) =>
         !item.startsWith(".") && !["node_modules", "pictures"].includes(item)
-    ).sort((a, b) => {
-      if(a.includes('.md') && b.includes('.md')) {
-        return a > b ? 1 : -1
-      }else {
-        return a.includes('.md') ? -1 : 1
+    )
+    .sort((a, b) => {
+      if (a.includes(".md") && b.includes(".md")) {
+        return a > b ? 1 : -1;
+      } else {
+        return a.includes(".md") ? -1 : 1;
       }
     });
   tmp.forEach((item) => {
@@ -37,7 +38,6 @@ function genSideBar(dir: string, sidebar: any[]) {
 const sidebar = [];
 genSideBar("./docs", sidebar);
 
-
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "Stolen documents",
@@ -46,7 +46,10 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: "Home", link: "/" },
-      { text: "Labuladong", link: "/docs/labuladong-fucking-algorithm/目录.md" },
+      {
+        text: "Labuladong",
+        link: "/docs/labuladong-fucking-algorithm/目录.md",
+      },
     ],
 
     sidebar: [...sidebar],
@@ -54,5 +57,8 @@ export default defineConfig({
     socialLinks: [
       { icon: "github", link: "https://github.com/vuejs/vitepress" },
     ],
+  },
+  vite: {
+    assetsInclude: ["**/*.PNG"],
   },
 });
