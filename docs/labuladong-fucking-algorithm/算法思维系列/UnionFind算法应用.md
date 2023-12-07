@@ -227,4 +227,4 @@ boolean equationsPossible(String[] equations) {
 
 [下一篇：一行代码就能解决的算法题](../高频面试系列/一行代码解决的智力题.md)
 
-[目录](../README.md#目录)
+[目录](../目录.md)

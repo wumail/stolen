@@ -162,4 +162,4 @@ int[] twoSum(int[] nums, int target) {
 
 [下一篇：常用的位操作](../算法思维系列/常用的位操作.md)
 
-[目录](../README.md#目录)
+[目录](../目录.md)

@@ -138,4 +138,4 @@ $ sudo /home/fdl/bin/connect.sh
 
 [下一篇：加密算法的前身今世](../技术/密码技术.md)
 
-[目录](../README.md#目录)
+[目录](../目录.md)

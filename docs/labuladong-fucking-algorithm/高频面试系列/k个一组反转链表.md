@@ -135,4 +135,4 @@ ListNode reverseKGroup(ListNode head, int k) {
 
 [下一篇：如何判定括号合法性](../高频面试系列/合法括号判定.md)
 
-[目录](../README.md#目录)
+[目录](../目录.md)

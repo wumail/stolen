@@ -136,4 +136,4 @@ https://github.com/astaxie/build-web-application-with-golang
 
 [下一篇：关于 Linux shell 你必须知道的](../技术/linuxshell.md)
 
-[目录](../README.md#目录)
+[目录](../目录.md)
