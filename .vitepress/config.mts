@@ -51,13 +51,13 @@ export default defineConfig({
         link: "/docs/labuladong-fucking-algorithm/目录.md",
       },
     ],
-
     sidebar: [...sidebar],
-
     socialLinks: [
       { icon: "github", link: "https://github.com/vuejs/vitepress" },
     ],
   },
+  outDir: 'dist',
+  base: '/dist/',
   vite: {
     assetsInclude: ["**/*.PNG"],
   },
