@@ -57,7 +57,7 @@ export default defineConfig({
     ],
   },
   outDir: 'dist',
-  base: '/dist/',
+  base: '/stolen/dist/',
   vite: {
     assetsInclude: ["**/*.PNG"],
   },
