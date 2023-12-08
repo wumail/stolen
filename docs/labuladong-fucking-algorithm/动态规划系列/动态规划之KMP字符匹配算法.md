@@ -1,4 +1,12 @@
-# 动态规划之KMP字符匹配算法
+读完本文，你不仅学会了算法套路，还可以顺便解决如下题目：
+
+| LeetCode | 力扣 | 难度 |
+| :----: | :----: | :----: |
+| [28. Find the Index of the First Occurrence in a String](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/) | [28. 找出字符串中第一个匹配项的下标](https://leetcode.cn/problems/find-the-index-of-the-first-occurrence-in-a-string/) | 🟠
+
+**-----------**
+
+> tip：阅读本文之前，建议你先学习一下另一种字符串匹配算法：[Rabin Karp 字符匹配算法](https://labuladong.github.io/article/fname.html?fname=rabinkarp)。
 
 KMP 算法（Knuth-Morris-Pratt 算法）是一个著名的字符串匹配算法，效率很高，但是确实有点复杂。
 
@@ -10,14 +18,15 @@ KMP 算法（Knuth-Morris-Pratt 算法）是一个著名的字符串匹配算法
 
 读者见过的 KMP 算法应该是，一波诡异的操作处理 `pat` 后形成一个一维的数组 `next`，然后根据这个数组经过又一波复杂操作去匹配 `txt`。时间复杂度 O(N)，空间复杂度 O(M)。其实它这个 `next` 数组就相当于 `dp` 数组，其中元素的含义跟 `pat` 的前缀和后缀有关，判定规则比较复杂，不好理解。**本文则用一个二维的 `dp` 数组（但空间复杂度还是 O(M)），重新定义其中元素的含义，使得代码长度大大减少，可解释性大大提高**。
 
-PS：本文的代码参考《算法4》，原代码使用的数组名称是 `dfa`（确定有限状态机），因为我们的公众号之前有一系列动态规划的文章，就不说这么高大上的名词了，我对书中代码进行了一点修改，并沿用 `dp` 数组的名称。
+> note：本文的代码参考《算法4》，原代码使用的数组名称是 `dfa`（确定有限状态机），因为我们的公众号之前有一系列动态规划的文章，就不说这么高大上的名词了，我对书中代码进行了一点修改，并沿用 `dp` 数组的名称。
 
 ### 一、KMP 算法概述
 
 首先还是简单介绍一下 KMP 算法和暴力匹配算法的不同在哪里，难点在哪里，和动态规划有啥关系。
 
-暴力的字符串匹配算法很容易写，看一下它的运行逻辑：
+力扣第 28 题「实现 strStr」就是字符串匹配问题，暴力的字符串匹配算法很容易写，看一下它的运行逻辑：
 
+<!-- muliti_language -->
 ```java
 // 暴力匹配（伪码）
 int search(String pat, String txt) {
@@ -37,21 +46,21 @@ int search(String pat, String txt) {
 }
 ```
 
-对于暴力算法，如果出现不匹配字符，同时回退 `txt` 和 `pat` 的指针，嵌套 for 循环，时间复杂度 $O(MN)$，空间复杂度$O(1)$。最主要的问题是，如果字符串中重复的字符比较多，该算法就显得很蠢。
+对于暴力算法，如果出现不匹配字符，同时回退 `txt` 和 `pat` 的指针，嵌套 for 循环，时间复杂度 `O(MN)`，空间复杂度`O(1)`。最主要的问题是，如果字符串中重复的字符比较多，该算法就显得很蠢。
 
-比如 txt = "aaacaaab" pat = "aaab"：
+比如 `txt = "aaacaaab", pat = "aaab"`：
 
-![brutal](../pictures/kmp/1.gif)
+![](../pictures/kmp/1.gif)
 
 很明显，`pat` 中根本没有字符 c，根本没必要回退指针 `i`，暴力解法明显多做了很多不必要的操作。
 
 KMP 算法的不同之处在于，它会花费空间来记录一些信息，在上述情况中就会显得很聪明：
 
-![kmp1](../pictures/kmp/2.gif)
+![](../pictures/kmp/2.gif)
 
-再比如类似的 txt = "aaaaaaab" pat = "aaab"，暴力解法还会和上面那个例子一样蠢蠢地回退指针 `i`，而 KMP 算法又会耍聪明：
+再比如类似的 `txt = "aaaaaaab", pat = "aaab"`，暴力解法还会和上面那个例子一样蠢蠢地回退指针 `i`，而 KMP 算法又会耍聪明：
 
-![kmp2](../pictures/kmp/3.gif)
+![](../pictures/kmp/3.gif)
 
 因为 KMP 算法知道字符 b 之前的字符 a 都是匹配的，所以每次只需要比较字符 b 是否被匹配就行了。
 
@@ -80,7 +89,7 @@ pat = "aaab"
 
 ![](../pictures/kmp/txt2.jpg)
 
-PS：这个`j` 不要理解为索引，它的含义更准确地说应该是**状态**（state），所以它会出现这个奇怪的位置，后文会详述。
+> note：这个`j` 不要理解为索引，它的含义更准确地说应该是**状态**（state），所以它会出现这个奇怪的位置，后文会详述。
 
 而对于 `txt2` 的下面这个即将出现的未匹配情况：
 
@@ -92,6 +101,7 @@ PS：这个`j` 不要理解为索引，它的含义更准确地说应该是**状
 
 明白了 `dp` 数组只和 `pat` 有关，那么我们这样设计 KMP 算法就会比较漂亮：
 
+<!-- muliti_language -->
 ```java
 public class KMP {
     private int[][] dp;
@@ -148,7 +158,6 @@ int pos2 = kmp.search("aaaaaaab"); //4
 
 ![](../pictures/kmp/exp7.jpg)
 
-
 当然了，还可能遇到其他字符，比如 Z，但是显然应该转移到起始状态 0，因为 `pat` 中根本都没有字符 Z：
 
 ![](../pictures/kmp/z.jpg)
@@ -184,6 +193,7 @@ pat 应该转移到状态 2
 
 根据我们这个 dp 数组的定义和刚才状态转移的过程，我们可以先写出 KMP 算法的 search 函数代码：
 
+<!-- muliti_language -->
 ```java
 public int search(String txt) {
     int M = pat.length();
@@ -261,6 +271,7 @@ for 0 <= j < M:
 
 如果之前的内容你都能理解，恭喜你，现在就剩下一个问题：影子状态 `X` 是如何得到的呢？下面先直接看完整代码吧。
 
+<!-- muliti_language -->
 ```java
 public class KMP {
     private int[][] dp;
@@ -336,6 +347,7 @@ for (int i = 0; i < N; i++) {
 
 至此，KMP 算法的核心终于写完啦啦啦啦！看下 KMP 算法的完整代码吧：
 
+<!-- muliti_language -->
 ```java
 public class KMP {
     private int[][] dp;
@@ -399,12 +411,146 @@ public class KMP {
 
 KMP 算法也就是动态规划那点事，我们的公众号文章目录有一系列专门讲动态规划的，而且都是按照一套框架来的，无非就是描述问题逻辑，明确 `dp` 数组含义，定义 base case 这点破事。希望这篇文章能让大家对动态规划有更深的理解。
 
-**致力于把算法讲清楚！欢迎关注我的微信公众号 labuladong，查看更多通俗易懂的文章**：
 
-![labuladong](../pictures/labuladong.png)
 
-[上一篇：贪心算法之区间调度问题](../动态规划系列/贪心算法之区间调度问题.md)
+<hr>
+<details class="hint-container details">
+<summary><strong>引用本文的文章</strong></summary>
 
-[下一篇：团灭 LeetCode 股票买卖问题](../动态规划系列/团灭股票问题.md)
+ - [我的刷题心得](https://labuladong.github.io/article/fname.html?fname=算法心得)
+ - [滑动窗口算法延伸：Rabin Karp 字符匹配算法](https://labuladong.github.io/article/fname.html?fname=rabinkarp)
 
-[目录](../目录.md)
+</details><hr>
+
+
+
+
+
+**＿＿＿＿＿＿＿＿＿＿＿＿＿**
+
+**《labuladong 的算法小抄》已经出版，关注公众号查看详情；后台回复「**全家桶**」可下载配套 PDF 和刷题全家桶**：
+
+![](../pictures/souyisou2.png)
+
+======其他语言代码======
+
+[28.实现 strStr()](https://leetcode-cn.com/problems/implement-strstr)
+
+### python
+
+[MoguCloud](https://github.com/MoguCloud) 提供 实现 strStr() 的 Python 完整代码：
+
+```python
+class Solution:
+  def strStr(self, haystack: str, needle: str) -> int:
+    # 边界条件判断
+    if not needle:
+      return 0
+    pat = needle
+    txt = haystack
+
+    M = len(pat)
+    # dp[状态][字符] = 下个状态
+    dp = [[0 for _ in range(256)] for _ in pat]
+    # base case
+    dp[0][ord(pat[0])] = 1
+    # 影子状态 X 初始化为 0
+    X = 0
+    for j in range(1, M):
+      for c in range(256):
+        dp[j][c] = dp[X][c]
+        dp[j][ord(pat[j])] = j + 1
+        # 更新影子状态
+        X = dp[X][ord(pat[j])]
+
+        N = len(txt)
+        # pat 初始状态为 0 
+        j = 0
+        for i in range(N):
+          # 计算 pat 的下一个状态
+          j = dp[j][ord(txt[i])]
+          # 到达终止态，返回结果
+          if j == M:
+            return i - M + 1
+          # 没到达终止态，匹配失败
+          return -1
+```
+
+
+
+### javascript
+
+```js
+class KMP {
+  constructor(pat) {
+    this.pat = pat;
+    let m = pat.length;
+
+    // dp[状态][字符] = 下个状态  初始化一个m*256的整数矩阵
+    this.dp = new Array(m);
+    for (let i = 0; i < m; i++) {
+      this.dp[i] = new Array(256);
+      this.dp[i].fill(0, 0, 256);
+    }
+
+    // base case
+    this.dp[0][this.pat[0].charCodeAt()] = 1;
+
+    // 影子状态X 初始为0
+    let x = 0;
+
+    // 构建状态转移图
+    for (let j = 1; j < m; j++) {
+      for (let c = 0; c < 256; c++) {
+        this.dp[j][c] = this.dp[x][c];
+      }
+
+      // dp[][对应的ASCII码]
+      this.dp[j][this.pat[j].charCodeAt()] = j + 1;
+
+      // 更新影子状态
+      x = this.dp[x][this.pat[j].charCodeAt()]
+    }
+  }
+
+  search(txt) {
+
+    let m = this.pat.length;
+    let n = txt.length;
+
+    // pat的初始态为0
+    let j = 0;
+    for (let i = 0; i < n; i++) {
+      // 计算pat的下一个状态
+      j = this.dp[j][txt[i].charCodeAt()];
+
+      // 到达终止态 返回结果
+      if (j === m) return i - m + 1;
+    }
+
+    // 没到终止态 匹配失败
+    return -1;
+  }
+
+}
+
+/**
+ * @param {string} haystack
+ * @param {string} needle
+ * @return {number}
+ */
+var strStr = function(haystack, needle) { 
+  if(haystack === ""){
+    if(needle !== ""){
+      return -1;
+    }
+    return 0;
+  }
+
+  if(needle === ""){
+    return 0;
+  }
+  let kmp = new KMP(needle);
+  return kmp.search(haystack)
+};
+```
