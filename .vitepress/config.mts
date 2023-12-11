@@ -2,12 +2,14 @@ import { defineConfig } from "vitepress";
 import fs from "fs";
 import path from "path";
 
+const excludes = ["node_modules", "pictures"];
+
 function genSideBar(dir: string, sidebar: any[]) {
   const tmp = fs
     .readdirSync(dir)
     .filter(
       (item) =>
-        !item.startsWith(".") && !["node_modules", "pictures"].includes(item)
+        !item.startsWith(".") && !excludes.includes(item)
     )
     .sort((a, b) => {
       if (a.includes(".md") && b.includes(".md")) {
