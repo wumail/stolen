@@ -428,10 +428,6 @@ KMP 算法也就是动态规划那点事，我们的公众号文章目录有一�
 
 **＿＿＿＿＿＿＿＿＿＿＿＿＿**
 
-**《labuladong 的算法小抄》已经出版，关注公众号查看详情；后台回复「**全家桶**」可下载配套 PDF 和刷题全家桶**：
-
-![](../pictures/souyisou2.png)
-
 ======其他语言代码======
 
 [28.实现 strStr()](https://leetcode-cn.com/problems/implement-strstr)
